@@ -47,9 +47,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: generate report
-        run: go test -json > report.json
-      - name: coverage
-        run: go test -coverprofile=coverage.out
+        run: go test -coverprofile=./cov.out ./... && go tool cover -html=cov.out -o coverage-report.html
       - name: Clone Repository
         uses: actions/checkout@master
       - name: Download code coverage results
