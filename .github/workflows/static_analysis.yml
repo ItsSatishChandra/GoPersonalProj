@@ -1,9 +1,13 @@
 name: Static Analysis and Report
 on:
-  push:
-  pull_request:
-    types: [ opened, synchronize, reopened ]
-  workflow_dispatch: { }
+    push:
+        branches:
+            - main
+            - github-actions
+    pull_request:
+        branches: [main]
+        types: [opened, synchronize, reopened]
+    workflow_dispatch: { }
 
 jobs:
   analyze:
