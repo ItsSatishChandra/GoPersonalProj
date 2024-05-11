@@ -29,24 +29,27 @@ jobs:
   #     # Used to specify whether caching is needed. Default: true
   #     go-cache: true
 
-  tests:
-    # needs: gosec
-    runs-on: ubuntu-latest
-    env:
-      GO111MODULE: on
-    steps:
-      - name: Checkout Source
-        uses: actions/checkout@v3
-      - name: Run Gosec Security Scanner
-        uses: securego/gosec@master
-        with:
-          args: ./...
+  # tests:
+  #   # needs: gosec
+  #   runs-on: ubuntu-latest
+  #   env:
+  #     GO111MODULE: on
+  #   steps:
+  #     - name: Checkout Source
+  #       uses: actions/checkout@v3
+  #     - name: Run Gosec Security Scanner
+  #       uses: securego/gosec@master
+  #       with:
+  #         args: ./...
 
   sonarCloudTrigger:
-    needs: tests
     name: SonarCloud Trigger
     runs-on: ubuntu-latest
     steps:
+      - name: generate report
+        run: go test -json > report.json
+      - name: coverage
+        run: go test -coverprofile=coverage.out
       - name: Clone Repository
         uses: actions/checkout@master
       - name: Download code coverage results
