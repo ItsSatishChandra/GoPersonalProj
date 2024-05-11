@@ -8,55 +8,27 @@ on:
     branches: [main]
     types: [opened, synchronize, reopened]
 jobs:
-  # gosec:
-  #   name: gosec
-  #   uses: ellogroup/gosec-action@v1
-  #   with:
-  #     # The working directory to run gosec against. Default: .
-  #     working-directory: '.'
-  #     # The go package to run gosec against. Default: ./...
-  #     go-package: './...'
-  #     # Whether to install Go. Default: false
-  #     go-install: true
-  #     # The Go version to download (if necessary) and use
-  #     go-version: '1.21.1'
-  #     # Path to the go.mod or go.work file
-  #     go-version-file: 'go.mod'
-  #     # Used to specify the path to a dependency file - go.sum
-  #     go-cache-dependency-path: 'go.sum'
-  #     # Check for the latest available version. Default: false
-  #     go-check-latest: true
-  #     # Used to specify whether caching is needed. Default: true
-  #     go-cache: true
-
-  # tests:
-  #   # needs: gosec
-  #   runs-on: ubuntu-latest
-  #   env:
-  #     GO111MODULE: on
-  #   steps:
-  #     - name: Checkout Source
-  #       uses: actions/checkout@v3
-  #     - name: Run Gosec Security Scanner
-  #       uses: securego/gosec@master
-  #       with:
-  #         args: ./...
-
-  sonarCloudTrigger:
-    name: SonarCloud Trigger
+  analyze:
+    name: Static analysis
     runs-on: ubuntu-latest
     steps:
-      - name: generate report
-        run: go test -coverprofile=./cov.out ./... && go tool cover -html=cov.out -o coverage-report.html
-      - name: Clone Repository
-        uses: actions/checkout@master
-      - name: Download code coverage results
-        uses: actions/download-artifact@v4
+      - uses: actions/checkout@v4
+      - name: Setup Go
+        uses: actions/setup-go@v5
         with:
-          name: code-coverage-report
-          path: bin
-      - name: Analyze with SonarCloud
-        uses: sonarsource/sonarcloud-github-action@master
+          go-version: '^1.22.1'
+
+      - name: Run unit Tests
+        run: |
+          go test -coverprofile=./cov.out ./...
+
+      - name: Run Gosec Security Scanner
+        run: |
+          go get github.com/securego/gosec/cmd/gosec
+          gosec -no-fail -fmt=sonarqube -out report.json ./...
+
+      - name: SonarCloud Scan
+        uses: SonarSource/sonarcloud-github-action@master
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
