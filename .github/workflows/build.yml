@@ -8,26 +8,33 @@ on:
     branches: [main]
     types: [opened, synchronize, reopened]
 jobs:
-  goSecInstall:
-    name : install gosec
-    runs-on: ubuntu-latest
-    steps:
-      - name: gosec
-        uses: actions/checkout@v3
-      - name: download gosec
-        run:  sudo snap install gosec
-      - name: test gosec
-        run: var=$(gosec) && echo "$var"
-
+  # gosec:
+  #   name: gosec
+  #   uses: ellogroup/gosec-action@v1
+  #   with:
+  #     # The working directory to run gosec against. Default: .
+  #     working-directory: '.'
+  #     # The go package to run gosec against. Default: ./...
+  #     go-package: './...'
+  #     # Whether to install Go. Default: false
+  #     go-install: true
+  #     # The Go version to download (if necessary) and use
+  #     go-version: '1.21.1'
+  #     # Path to the go.mod or go.work file
+  #     go-version-file: 'go.mod'
+  #     # Used to specify the path to a dependency file - go.sum
+  #     go-cache-dependency-path: 'go.sum'
+  #     # Check for the latest available version. Default: false
+  #     go-check-latest: true
+  #     # Used to specify whether caching is needed. Default: true
+  #     go-cache: true
 
   tests:
-    needs: goSecInstall
+    # needs: gosec
     runs-on: ubuntu-latest
     env:
       GO111MODULE: on
     steps:
-      - name: test gosec
-        run: var=$(gosec) && echo "$var"
       - name: Checkout Source
         uses: actions/checkout@v3
       - name: Run Gosec Security Scanner
