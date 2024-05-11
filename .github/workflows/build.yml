@@ -8,15 +8,43 @@ on:
     branches: [main]
     types: [opened, synchronize, reopened]
 jobs:
-  sonarcloud:
-    name: SonarCloud
+  goSecInstall:
+    name : install gosec
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v3
+      - name: gosec
+        uses: actions/checkout@v3
+      - name: download gosec
+        run:  sudo snap install gosec
+
+
+  tests:
+    needs: goSecInstall
+    runs-on: ubuntu-latest
+    env:
+      GO111MODULE: on
+    steps:
+      - name: Checkout Source
+        uses: actions/checkout@v3
+      - name: Run Gosec Security Scanner
+        uses: securego/gosec@master
         with:
-          fetch-depth: 0  # Shallow clones should be disabled for a better relevancy of analysis
-      - name: SonarCloud Scan
-        uses: SonarSource/sonarcloud-github-action@master
+          args: -fmt=sonarqube -out report.json ./...
+
+  sonarCloudTrigger:
+    needs: tests
+    name: SonarCloud Trigger
+    runs-on: ubuntu-latest
+    steps:
+      - name: Clone Repository
+        uses: actions/checkout@master
+      - name: Download code coverage results
+        uses: actions/download-artifact@v4
+        with:
+          name: code-coverage-report
+          path: bin
+      - name: Analyze with SonarCloud
+        uses: sonarsource/sonarcloud-github-action@master
         env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}  # Needed to get PR information, if any
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
