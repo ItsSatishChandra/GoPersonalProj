@@ -40,7 +40,7 @@ jobs:
       - name: Run Gosec Security Scanner
         uses: securego/gosec@master
         with:
-          args: -fmt=sonarqube -out report.json ./...
+          args: ./...
 
   sonarCloudTrigger:
     needs: tests
