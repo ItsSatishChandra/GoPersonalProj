@@ -8,6 +8,6 @@ import (
 func main() {
 	err := backend.Server()
 	if err != nil {
-		log.Fatal("error running backend : %v", err)
+		log.Fatal("error running backend: ", err)
 	}
 }
