@@ -1,9 +1,13 @@
 package main
 
 import (
+	"log"
 	"website/backend"
 )
 
 func main() {
-	backend.Server()
+	err := backend.Server()
+	if err != nil {
+		log.Fatal("error running backend : %v", err)
+	}
 }
