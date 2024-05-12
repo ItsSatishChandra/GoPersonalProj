@@ -6,10 +6,15 @@ import (
 	"website/backend/routes"
 )
 
-func Server() {
+func Server() error {
 	server := echo.New()
 
 	routes.RouteManager(server)
 
-	server.Logger.Fatal(server.Start(":8000"))
+	err := server.Start(":8000")
+
+	if err != nil {
+		return err
+	}
+	return nil
 }
